@@ -15,6 +15,9 @@ func SaveUploadedFile(file multipart.File, path string) error {
 	defer out.Close()
 
 	_, err = io.Copy(out, file)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
