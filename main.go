@@ -4,7 +4,9 @@ import (
 	"log"
 	"os"
 	"post-backend/internal/config"
+	"post-backend/internal/middleware"
 	"post-backend/internal/token"
+	"post-backend/internal/user"
 	"strconv"
 	"time"
 
@@ -63,6 +65,13 @@ func main() {
 	api := router.Group("/api/v1")
 
 	tokenService := token.NewTokenService([]byte(jwtSecretKey))
+
+	userRepository := user.NewUserRepository()
+	userService := user.NewUserService(db, userRepository, tokenService)
+	userHandler := user.NewUserHandler(userService)
+
+	api.POST("/auth/login", userHandler.Login)
+	api.POST("/auth/password", middleware.AuthMiddleware(tokenService), userHandler.UpdatePassword)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
