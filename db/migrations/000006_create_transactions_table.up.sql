@@ -1,6 +1,6 @@
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT,
     total DECIMAL(10, 2) NOT NULL,
     status ENUM('pending', 'completed', 'canceled') DEFAULT 'pending',
     code VARCHAR(50) NOT NULL UNIQUE,
@@ -11,5 +11,5 @@ CREATE TABLE transactions (
     note TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );

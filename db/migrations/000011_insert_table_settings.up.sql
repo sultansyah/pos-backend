@@ -1,4 +1,4 @@
-INSERT INTO settings (key, value) VALUES
+INSERT INTO settings (`key`, `value`) VALUES
 ('store_name', 'Toko'),
 ('store_address', 'Jalan toko'),
 ('store_phone', '080000000000'),

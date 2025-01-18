@@ -19,7 +19,7 @@ func NewSettingRepository() SettingRepository {
 }
 
 func (s *SettingRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]Setting, error) {
-	sql := "select id, key, value, created_at, updated_at from setting"
+	sql := "select id, `key`, value, created_at, updated_at from settings"
 
 	rows, err := tx.QueryContext(ctx, sql)
 	if err != nil {
@@ -43,9 +43,9 @@ func (s *SettingRepositoryImpl) FindBy(ctx context.Context, tx *sql.Tx, by any) 
 	sql := ""
 	switch by.(type) {
 	case int:
-		sql = "select id, key, value, created_at, updated_at from setting where id = ?"
+		sql = "select id, `key`, value, created_at, updated_at from settings where id = ?"
 	case string:
-		sql = "select id, key, value, created_at, updated_at from setting where key = ?"
+		sql = "select id, `key`, value, created_at, updated_at from settings where `key` = ?"
 	}
 
 	if sql == "" {

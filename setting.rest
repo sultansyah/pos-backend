@@ -1,11 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080/api/v1
 
-### Change Password User
-POST {{baseUrl}}/auth/password
-Content-Type: application/json
-Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY2OTc5MzcsInVzZXJfaWQiOjF9.tfDee6K8DvtzQOhLpWLWxtdbwSwbmNHh6C9RIRW2Pn0
-
-{
-    "password": "admin2"
-}
+### Get setting
+GET {{baseUrl}}/settings
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc0NzYxMDQsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6IiJ9.C9sSJO_sdI3T7RtUCDpmYB0JTS_vK7Ar5HK7wsx2qC8

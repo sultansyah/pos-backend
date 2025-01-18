@@ -8,5 +8,5 @@ CREATE TABLE products (
     status ENUM('active', 'inactive') DEFAULT 'active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
