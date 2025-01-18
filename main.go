@@ -5,6 +5,7 @@ import (
 	"os"
 	"post-backend/internal/config"
 	"post-backend/internal/middleware"
+	"post-backend/internal/setting"
 	"post-backend/internal/token"
 	"post-backend/internal/user"
 	"strconv"
@@ -70,8 +71,14 @@ func main() {
 	userService := user.NewUserService(db, userRepository, tokenService)
 	userHandler := user.NewUserHandler(userService)
 
+	settingRepository := setting.NewSettingRepository()
+	settingService := setting.NewSettingService(settingRepository, db)
+	settingHandler := setting.NewSettingHandler(settingService)
+
 	api.POST("/auth/login", userHandler.Login)
 	api.POST("/auth/password", middleware.AuthMiddleware(tokenService), userHandler.UpdatePassword)
+
+	api.GET("/settings", middleware.AuthMiddleware(tokenService), settingHandler.GetAll)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

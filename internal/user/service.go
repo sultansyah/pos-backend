@@ -45,7 +45,7 @@ func (u *UserServiceImpl) Login(ctx context.Context, input LoginInputUser) (User
 		return User{}, "", custom.ErrUnauthorized
 	}
 
-	token, err := u.TokenService.GenerateToken(user.Id)
+	token, err := u.TokenService.GenerateToken(user.Id, user.Role)
 	if err != nil {
 		return User{}, "", err
 	}
