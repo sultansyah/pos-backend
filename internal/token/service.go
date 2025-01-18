@@ -8,7 +8,7 @@ import (
 )
 
 type TokenService interface {
-	GenerateToken(userId int) (string, error)
+	GenerateToken(userId int, userRole string) (string, error)
 	ValidateToken(encodedToken string) (*jwt.Token, error)
 }
 
@@ -20,10 +20,11 @@ func NewTokenService(key []byte) TokenService {
 	return &TokenServiceImpl{Key: key}
 }
 
-func (t *TokenServiceImpl) GenerateToken(userId int) (string, error) {
+func (t *TokenServiceImpl) GenerateToken(userId int, userRole string) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id": userId,
-		"exp":     time.Now().Add(time.Hour * 24 * 3).Unix(),
+		"user_id":   userId,
+		"user_role": userRole,
+		"exp":       time.Now().Add(time.Hour * 24 * 3).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

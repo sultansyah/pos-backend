@@ -33,8 +33,11 @@ func AuthMiddleware(tokenService token.TokenService) gin.HandlerFunc {
 		}
 
 		userId := int(claims["user_id"].(float64))
+		userRole := claims["user_role"].(string)
 
 		c.Set("userId", userId)
+		c.Set("userRole", userRole)
+
 		c.Next()
 	}
 }
