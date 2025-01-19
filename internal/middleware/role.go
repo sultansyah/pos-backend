@@ -10,16 +10,9 @@ import (
 
 func RoleMiddleware(roles []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole, exists := c.Get("userRole")
-		if !exists {
-			helper.HandleErrorResponde(c, custom.ErrUnauthorized)
-			c.Abort()
-			return
-		}
-
-		userRoleString, ok := userRole.(string)
-		if !ok {
-			helper.HandleErrorResponde(c, custom.ErrInternal)
+		userRoleString, err := helper.GetUserRole(c)
+		if err != nil {
+			helper.HandleErrorResponde(c, err)
 			c.Abort()
 			return
 		}

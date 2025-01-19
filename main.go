@@ -8,6 +8,7 @@ import (
 	"post-backend/internal/middleware"
 	"post-backend/internal/product"
 	"post-backend/internal/setting"
+	stockhistory "post-backend/internal/stock_history"
 	"post-backend/internal/token"
 	"post-backend/internal/user"
 	"strconv"
@@ -81,8 +82,12 @@ func main() {
 	categoryService := category.NewCategoryService(categoryRepository, db)
 	categoryHandler := category.NewCategoryHandler(categoryService)
 
+	stockHistoryRepository := stockhistory.NewStockHistoryRepository()
+	stockHistoryService := stockhistory.NewStockHistoryService(stockHistoryRepository, db)
+	stockHistoryHandler := stockhistory.NewStockHistoryHandler(stockHistoryService)
+
 	productRepository := product.NewProductRepository()
-	productService := product.NewProductService(productRepository, db)
+	productService := product.NewProductService(productRepository, stockHistoryRepository, db)
 	productHandler := product.NewProductHandler(productService)
 
 	api.POST("/auth/login", userHandler.Login)
@@ -108,6 +113,9 @@ func main() {
 	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.DeleteImage)
 
 	api.PUT("/products/:id/stock", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.UpdateStock)
+
+	api.GET("/stock-history/products/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetAllByProduct)
+	api.GET("/stock-history/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetById)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

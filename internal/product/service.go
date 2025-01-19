@@ -7,13 +7,14 @@ import (
 	"mime/multipart"
 	"post-backend/internal/custom"
 	"post-backend/internal/helper"
+	stockhistory "post-backend/internal/stock_history"
 	"sync"
 
 	"github.com/gosimple/slug"
 )
 
 type ProductService interface {
-	Create(ctx context.Context, input CreateProductInput, productImagesFile map[string]multipart.File) (Product, error)
+	Create(ctx context.Context, input CreateProductInput, productImagesFile map[string]multipart.File, userId int) (Product, error)
 	Update(ctx context.Context, inputData UpdateProductInput, inputId GetProductInput) (Product, error)
 	Delete(ctx context.Context, input GetProductInput) error
 	Get(ctx context.Context, input GetProductInput) (Product, error)
@@ -22,19 +23,20 @@ type ProductService interface {
 	CreateImage(ctx context.Context, input GetProductInput, productImagesFile map[string]multipart.File) error
 	DeleteImage(ctx context.Context, input GetProductImageInput) error
 	SetLogo(ctx context.Context, inputProductId GetProductInput, inputProductImageId GetProductImageInput) error
-	UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput) error
+	UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput, userId int) error
 }
 
 type ProductServiceImpl struct {
-	ProductRepository ProductRepository
-	DB                *sql.DB
+	ProductRepository      ProductRepository
+	StockHistoryRepository stockhistory.StockHistoryRepository
+	DB                     *sql.DB
 }
 
-func NewProductService(productRepository ProductRepository, DB *sql.DB) ProductService {
-	return &ProductServiceImpl{ProductRepository: productRepository, DB: DB}
+func NewProductService(productRepository ProductRepository, stockHistoryRepository stockhistory.StockHistoryRepository, DB *sql.DB) ProductService {
+	return &ProductServiceImpl{ProductRepository: productRepository, StockHistoryRepository: stockHistoryRepository, DB: DB}
 }
 
-func (p *ProductServiceImpl) Create(ctx context.Context, input CreateProductInput, productImagesFile map[string]multipart.File) (Product, error) {
+func (p *ProductServiceImpl) Create(ctx context.Context, input CreateProductInput, productImagesFile map[string]multipart.File, userId int) (Product, error) {
 	tx, err := p.DB.Begin()
 	if err != nil {
 		return Product{}, err
@@ -59,6 +61,19 @@ func (p *ProductServiceImpl) Create(ctx context.Context, input CreateProductInpu
 		Status:      input.Status,
 	}
 	product, err = p.ProductRepository.Insert(ctx, tx, product)
+	if err != nil {
+		return Product{}, err
+	}
+
+	stockHistory := stockhistory.StockHistory{
+		ProductId:   product.Id,
+		Type:        "+",
+		Qty:         product.Stock,
+		StockBefore: 0,
+		StockAfter:  product.Stock,
+		UserId:      userId,
+	}
+	_, err = p.StockHistoryRepository.Insert(ctx, tx, stockHistory)
 	if err != nil {
 		return Product{}, err
 	}
@@ -350,7 +365,7 @@ func (p *ProductServiceImpl) Update(ctx context.Context, inputData UpdateProduct
 	return product, nil
 }
 
-func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput) error {
+func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput, userId int) error {
 	tx, err := p.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -381,6 +396,19 @@ func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId Get
 	}
 
 	err = p.ProductRepository.UpdateStock(ctx, tx, inputProductId.Id, newStock)
+	if err != nil {
+		return err
+	}
+
+	stockHistory := stockhistory.StockHistory{
+		ProductId:   inputProductId.Id,
+		Type:        inputData.Type,
+		Qty:         inputData.Qty,
+		StockBefore: stock,
+		StockAfter:  newStock,
+		UserId:      userId,
+	}
+	_, err = p.StockHistoryRepository.Insert(ctx, tx, stockHistory)
 	if err != nil {
 		return err
 	}

@@ -155,7 +155,13 @@ func (p *ProductHandlerImpl) Insert(c *gin.Context) {
 		defer tempFile.Close()
 	}
 
-	product, err := p.ProductService.Create(c.Request.Context(), input, productImagesFile)
+	userId, err := helper.GetUserId(c)
+	if err != nil {
+		helper.HandleErrorResponde(c, err)
+		return
+	}
+
+	product, err := p.ProductService.Create(c.Request.Context(), input, productImagesFile, userId)
 	if err != nil {
 		helper.HandleErrorResponde(c, err)
 		return
@@ -274,7 +280,13 @@ func (p *ProductHandlerImpl) UpdateStock(c *gin.Context) {
 		return
 	}
 
-	err := p.ProductService.UpdateStock(c.Request.Context(), inputProductId, inputData)
+	userId, err := helper.GetUserId(c)
+	if err != nil {
+		helper.HandleErrorResponde(c, err)
+		return
+	}
+
+	err = p.ProductService.UpdateStock(c.Request.Context(), inputProductId, inputData, userId)
 	if err != nil {
 		helper.HandleErrorResponde(c, err)
 		return
