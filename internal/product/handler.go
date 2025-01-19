@@ -19,6 +19,7 @@ type ProductHandler interface {
 	InsertImage(c *gin.Context)
 	DeleteImage(c *gin.Context)
 	SetLogoImage(c *gin.Context)
+	UpdateStock(c *gin.Context)
 }
 
 type ProductHandlerImpl struct {
@@ -259,5 +260,30 @@ func (p *ProductHandlerImpl) Update(c *gin.Context) {
 		Status:  "success",
 		Message: "success update product",
 		Data:    product,
+	})
+}
+
+func (p *ProductHandlerImpl) UpdateStock(c *gin.Context) {
+	var inputProductId GetProductInput
+	if !helper.BindAndValidate(c, &inputProductId, "uri") {
+		return
+	}
+
+	var inputData UpdateStockProductInput
+	if !helper.BindAndValidate(c, &inputData, "json") {
+		return
+	}
+
+	err := p.ProductService.UpdateStock(c.Request.Context(), inputProductId, inputData)
+	if err != nil {
+		helper.HandleErrorResponde(c, err)
+		return
+	}
+
+	helper.APIResponse(c, helper.WebResponse{
+		Code:    http.StatusOK,
+		Status:  "success",
+		Message: "success update stock",
+		Data:    "OK",
 	})
 }

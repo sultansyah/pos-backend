@@ -22,6 +22,7 @@ type ProductService interface {
 	CreateImage(ctx context.Context, input GetProductInput, productImagesFile map[string]multipart.File) error
 	DeleteImage(ctx context.Context, input GetProductImageInput) error
 	SetLogo(ctx context.Context, inputProductId GetProductInput, inputProductImageId GetProductImageInput) error
+	UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput) error
 }
 
 type ProductServiceImpl struct {
@@ -347,4 +348,42 @@ func (p *ProductServiceImpl) Update(ctx context.Context, inputData UpdateProduct
 	}
 
 	return product, nil
+}
+
+func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId GetProductInput, inputData UpdateStockProductInput) error {
+	tx, err := p.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer helper.HandleTransaction(tx, &err)
+
+	stock, err := p.ProductRepository.GetProductStock(ctx, tx, inputProductId.Id)
+	if err != nil {
+		return err
+	}
+	if stock == -1 {
+		return custom.ErrNotFound
+	}
+
+	newStock := 0
+
+	switch inputData.Type {
+	case "+":
+		newStock = stock + inputData.Qty
+	case "-":
+		newStock = stock - inputData.Qty
+	default:
+		return custom.ErrInternal
+	}
+
+	if newStock < 0 {
+		return custom.ErrInsufficientStock
+	}
+
+	err = p.ProductRepository.UpdateStock(ctx, tx, inputProductId.Id, newStock)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

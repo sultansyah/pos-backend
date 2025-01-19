@@ -29,3 +29,8 @@ type SlugProductInput struct {
 type GetProductImageInput struct {
 	Id int `uri:"imageId" binding:"required"`
 }
+
+type UpdateStockProductInput struct {
+	Qty  int    `json:"qty" binding:"required"`
+	Type string `json:"type" binding:"required"`
+}

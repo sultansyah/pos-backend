@@ -107,6 +107,8 @@ func main() {
 	api.PUT("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.SetLogoImage)
 	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.DeleteImage)
 
+	api.PUT("/products/:id/stock", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.UpdateStock)
+
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}

@@ -19,6 +19,8 @@ type ProductRepository interface {
 	UpdateImage(ctx context.Context, tx *sql.Tx, id int) error
 	UpdateImagesLogoFalse(ctx context.Context, tx *sql.Tx, productId int) error
 	FindImageById(ctx context.Context, tx *sql.Tx, id int) (ProductImages, error)
+	UpdateStock(ctx context.Context, tx *sql.Tx, productId int, stock int) error
+	GetProductStock(ctx context.Context, tx *sql.Tx, productId int) (int, error)
 }
 
 type ProductRepositoryImpl struct {
@@ -328,4 +330,36 @@ func (p *ProductRepositoryImpl) FindImageById(ctx context.Context, tx *sql.Tx, i
 	}
 
 	return ProductImages{}, custom.ErrNotFound
+}
+
+func (p *ProductRepositoryImpl) UpdateStock(ctx context.Context, tx *sql.Tx, productId int, stock int) error {
+	sql := "update products set stock = ? where id = ?"
+
+	_, err := tx.ExecContext(ctx, sql, stock, productId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *ProductRepositoryImpl) GetProductStock(ctx context.Context, tx *sql.Tx, productId int) (int, error) {
+	sql := "select stock from products where id = ?"
+
+	row, err := tx.QueryContext(ctx, sql, productId)
+	if err != nil {
+		return -1, err
+	}
+	defer row.Close()
+
+	var stock int
+	if row.Next() {
+		if err := row.Scan(&stock); err != nil {
+			return -1, err
+		}
+
+		return stock, nil
+	}
+
+	return -1, custom.ErrNotFound
 }
