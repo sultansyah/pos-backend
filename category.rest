@@ -1,0 +1,32 @@
+### Variables
+@baseUrl = http://localhost:8080/api/v1
+
+### Create Category
+POST {{baseUrl}}/categories
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc1MzM0MDYsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6ImFkbWluIn0.uFqOgK9krmcuoAtbQbr4pu0_yHXrCZaAN4JfIHeAlEM
+Content-Type: application/json
+
+{
+    "name": "baru"
+}
+
+### Edit Category
+PUT {{baseUrl}}/categories/2
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc1MzM0MDYsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6ImFkbWluIn0.uFqOgK9krmcuoAtbQbr4pu0_yHXrCZaAN4JfIHeAlEM
+Content-Type: application/json
+
+{
+    "name": "percobaan ubah"
+}
+
+### Delete Category
+DELETE {{baseUrl}}/categories/2
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc1MzM0MDYsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6ImFkbWluIn0.uFqOgK9krmcuoAtbQbr4pu0_yHXrCZaAN4JfIHeAlEM
+
+### Get Category by ID
+GET {{baseUrl}}/categories/2
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc1MzM0MDYsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6ImFkbWluIn0.uFqOgK9krmcuoAtbQbr4pu0_yHXrCZaAN4JfIHeAlEM
+
+### Get All Categorys
+GET {{baseUrl}}/categories
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc1MzM0MDYsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6ImFkbWluIn0.uFqOgK9krmcuoAtbQbr4pu0_yHXrCZaAN4JfIHeAlEM

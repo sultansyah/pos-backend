@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080/api/v1
 
-### Get setting
+### Get settings
 GET {{baseUrl}}/settings
 Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzc0NzYxMDQsInVzZXJfaWQiOjEsInVzZXJfcm9sZSI6IiJ9.C9sSJO_sdI3T7RtUCDpmYB0JTS_vK7Ar5HK7wsx2qC8

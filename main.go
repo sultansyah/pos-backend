@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"post-backend/internal/category"
 	"post-backend/internal/config"
 	"post-backend/internal/middleware"
 	"post-backend/internal/setting"
@@ -75,10 +76,20 @@ func main() {
 	settingService := setting.NewSettingService(settingRepository, db)
 	settingHandler := setting.NewSettingHandler(settingService)
 
+	categoryRepository := category.NewCategoryRepository()
+	categoryService := category.NewCategoryService(categoryRepository, db)
+	categoryHandler := category.NewCategoryHandler(categoryService)
+
 	api.POST("/auth/login", userHandler.Login)
 	api.POST("/auth/password", middleware.AuthMiddleware(tokenService), userHandler.UpdatePassword)
 
 	api.GET("/settings", middleware.AuthMiddleware(tokenService), settingHandler.GetAll)
+
+	api.POST("/categories", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), categoryHandler.Create)
+	api.GET("/categories", categoryHandler.GetAll)
+	api.GET("/categories/:id", categoryHandler.Get)
+	api.DELETE("/categories/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), categoryHandler.Delete)
+	api.PUT("/categories/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), categoryHandler.Update)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

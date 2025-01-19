@@ -20,7 +20,7 @@ func NewUserRepository() UserRepository {
 }
 
 func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (User, error) {
-	sql := "select id, name, username, password, created_at, updated_at from users where id = ?"
+	sql := "select id, role, name, username, password, created_at, updated_at from users where id = ?"
 	row, err := tx.QueryContext(ctx, sql, id)
 	if err != nil {
 		return User{}, err
@@ -29,7 +29,7 @@ func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (
 
 	user := User{}
 	if row.Next() {
-		err := row.Scan(&user.Id, &user.Name, &user.Username, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := row.Scan(&user.Id, &user.Role, &user.Name, &user.Username, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return User{}, err
 		}
@@ -41,7 +41,7 @@ func (u *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (
 }
 
 func (u *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sql.Tx, username string) (User, error) {
-	sql := "select id, name, username, password, created_at, updated_at from users where username = ?"
+	sql := "select id, role, name, username, password, created_at, updated_at from users where username = ?"
 	row, err := tx.QueryContext(ctx, sql, username)
 	if err != nil {
 		return User{}, err
@@ -50,7 +50,7 @@ func (u *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sql.Tx, use
 
 	user := User{}
 	if row.Next() {
-		err := row.Scan(&user.Id, &user.Name, &user.Username, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := row.Scan(&user.Id, &user.Role, &user.Name, &user.Username, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return User{}, err
 		}
