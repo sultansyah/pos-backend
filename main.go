@@ -6,6 +6,7 @@ import (
 	"post-backend/internal/category"
 	"post-backend/internal/config"
 	"post-backend/internal/middleware"
+	"post-backend/internal/product"
 	"post-backend/internal/setting"
 	"post-backend/internal/token"
 	"post-backend/internal/user"
@@ -80,6 +81,10 @@ func main() {
 	categoryService := category.NewCategoryService(categoryRepository, db)
 	categoryHandler := category.NewCategoryHandler(categoryService)
 
+	productRepository := product.NewProductRepository()
+	productService := product.NewProductService(productRepository, db)
+	productHandler := product.NewProductHandler(productService)
+
 	api.POST("/auth/login", userHandler.Login)
 	api.POST("/auth/password", middleware.AuthMiddleware(tokenService), userHandler.UpdatePassword)
 
@@ -90,6 +95,17 @@ func main() {
 	api.GET("/categories/:id", categoryHandler.Get)
 	api.DELETE("/categories/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), categoryHandler.Delete)
 	api.PUT("/categories/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), categoryHandler.Update)
+
+	api.GET("/products", productHandler.GetAll)
+	api.GET("/products/id/:id", productHandler.Get)
+	api.GET("/products/slug/:slug", productHandler.GetBySlug)
+	api.POST("/products", middleware.AuthMiddleware(tokenService), productHandler.Insert)
+	api.PUT("/products/:id", middleware.AuthMiddleware(tokenService), productHandler.Update)
+	api.DELETE("/products/:id", middleware.AuthMiddleware(tokenService), productHandler.Delete)
+
+	api.POST("/products/:id/images", middleware.AuthMiddleware(tokenService), productHandler.InsertImage)
+	api.PUT("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), productHandler.SetLogoImage)
+	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), productHandler.DeleteImage)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
