@@ -10,12 +10,12 @@ type CreateProductInput struct {
 }
 
 type UpdateProductInput struct {
-	CategoryId  int     `form:"category_id" binding:"required"`
-	Name        string  `form:"name" binding:"required"`
-	Description string  `form:"description" binding:"required"`
-	Stock       int     `form:"stock" binding:"required"`
-	Price       float64 `form:"price" binding:"required"`
-	Status      string  `form:"status" binding:"required"`
+	CategoryId  int     `json:"category_id" binding:"required"`
+	Name        string  `json:"name" binding:"required"`
+	Description string  `json:"description" binding:"required"`
+	Stock       int     `json:"stock" binding:"required"`
+	Price       float64 `json:"price" binding:"required"`
+	Status      string  `json:"status" binding:"required"`
 }
 
 type GetProductInput struct {

@@ -99,13 +99,13 @@ func main() {
 	api.GET("/products", productHandler.GetAll)
 	api.GET("/products/id/:id", productHandler.Get)
 	api.GET("/products/slug/:slug", productHandler.GetBySlug)
-	api.POST("/products", middleware.AuthMiddleware(tokenService), productHandler.Insert)
-	api.PUT("/products/:id", middleware.AuthMiddleware(tokenService), productHandler.Update)
-	api.DELETE("/products/:id", middleware.AuthMiddleware(tokenService), productHandler.Delete)
+	api.POST("/products", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.Insert)
+	api.PUT("/products/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.Update)
+	api.DELETE("/products/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.Delete)
 
-	api.POST("/products/:id/images", middleware.AuthMiddleware(tokenService), productHandler.InsertImage)
-	api.PUT("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), productHandler.SetLogoImage)
-	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), productHandler.DeleteImage)
+	api.POST("/products/:id/images", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.InsertImage)
+	api.PUT("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.SetLogoImage)
+	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.DeleteImage)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
