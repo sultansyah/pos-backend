@@ -108,12 +108,15 @@ func main() {
 	api.PUT("/products/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.Update)
 	api.DELETE("/products/:id", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.Delete)
 
+	// product images
 	api.POST("/products/:id/images", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.InsertImage)
 	api.PUT("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.SetLogoImage)
 	api.DELETE("/products/:id/images/:imageId", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.DeleteImage)
 
+	// update stock
 	api.PUT("/products/:id/stock", middleware.AuthMiddleware(tokenService), middleware.RoleMiddleware([]string{"admin"}), productHandler.UpdateStock)
 
+	// stock product history
 	api.GET("/stock-history/products/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetAllByProduct)
 	api.GET("/stock-history/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetById)
 
