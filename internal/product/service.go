@@ -7,6 +7,8 @@ import (
 	"mime/multipart"
 	"post-backend/internal/custom"
 	"post-backend/internal/helper"
+	"post-backend/internal/notification"
+	"post-backend/internal/setting"
 	stockhistory "post-backend/internal/stock_history"
 	"sync"
 
@@ -27,13 +29,21 @@ type ProductService interface {
 }
 
 type ProductServiceImpl struct {
+	DB                     *sql.DB
 	ProductRepository      ProductRepository
 	StockHistoryRepository stockhistory.StockHistoryRepository
-	DB                     *sql.DB
+	NotificationRepository notification.NotificationRepository
+	SettingRepository      setting.SettingRepository
 }
 
-func NewProductService(productRepository ProductRepository, stockHistoryRepository stockhistory.StockHistoryRepository, DB *sql.DB) ProductService {
-	return &ProductServiceImpl{ProductRepository: productRepository, StockHistoryRepository: stockHistoryRepository, DB: DB}
+func NewProductService(DB *sql.DB, productRepository ProductRepository, stockHistoryRepository stockhistory.StockHistoryRepository, notificationRepository notification.NotificationRepository, settingRepository setting.SettingRepository) ProductService {
+	return &ProductServiceImpl{
+		DB:                     DB,
+		ProductRepository:      productRepository,
+		StockHistoryRepository: stockHistoryRepository,
+		NotificationRepository: notificationRepository,
+		SettingRepository:      settingRepository,
+	}
 }
 
 func (p *ProductServiceImpl) Create(ctx context.Context, input CreateProductInput, productImagesFile map[string]multipart.File, userId int) (Product, error) {
@@ -362,6 +372,11 @@ func (p *ProductServiceImpl) Update(ctx context.Context, inputData UpdateProduct
 		return Product{}, err
 	}
 
+	err = CheckProductStock(p.SettingRepository, p.NotificationRepository, ctx, tx, product)
+	if err != nil {
+		return Product{}, err
+	}
+
 	return product, nil
 }
 
@@ -372,11 +387,11 @@ func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId Get
 	}
 	defer helper.HandleTransaction(tx, &err)
 
-	stock, err := p.ProductRepository.GetProductStock(ctx, tx, inputProductId.Id)
+	product, err := p.ProductRepository.FindById(ctx, tx, inputProductId.Id)
 	if err != nil {
 		return err
 	}
-	if stock == -1 {
+	if product.Id < 0 {
 		return custom.ErrNotFound
 	}
 
@@ -384,9 +399,9 @@ func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId Get
 
 	switch inputData.Type {
 	case "+":
-		newStock = stock + inputData.Qty
+		newStock = product.Stock + inputData.Qty
 	case "-":
-		newStock = stock - inputData.Qty
+		newStock = product.Stock - inputData.Qty
 	default:
 		return custom.ErrInternal
 	}
@@ -404,11 +419,16 @@ func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId Get
 		ProductId:   inputProductId.Id,
 		Type:        inputData.Type,
 		Qty:         inputData.Qty,
-		StockBefore: stock,
+		StockBefore: product.Stock,
 		StockAfter:  newStock,
 		UserId:      userId,
 	}
 	_, err = p.StockHistoryRepository.Insert(ctx, tx, stockHistory)
+	if err != nil {
+		return err
+	}
+
+	err = CheckProductStock(p.SettingRepository, p.NotificationRepository, ctx, tx, product)
 	if err != nil {
 		return err
 	}

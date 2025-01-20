@@ -6,6 +6,7 @@ import (
 	"post-backend/internal/category"
 	"post-backend/internal/config"
 	"post-backend/internal/middleware"
+	"post-backend/internal/notification"
 	"post-backend/internal/product"
 	"post-backend/internal/setting"
 	stockhistory "post-backend/internal/stock_history"
@@ -86,8 +87,10 @@ func main() {
 	stockHistoryService := stockhistory.NewStockHistoryService(stockHistoryRepository, db)
 	stockHistoryHandler := stockhistory.NewStockHistoryHandler(stockHistoryService)
 
+	notificationRepository := notification.NewNotificationRepository()
+
 	productRepository := product.NewProductRepository()
-	productService := product.NewProductService(productRepository, stockHistoryRepository, db)
+	productService := product.NewProductService(db, productRepository, stockHistoryRepository, notificationRepository, settingRepository)
 	productHandler := product.NewProductHandler(productService)
 
 	api.POST("/auth/login", userHandler.Login)

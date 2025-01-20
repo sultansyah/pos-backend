@@ -7,6 +7,9 @@ import (
 	"mime/multipart"
 	"os"
 	"post-backend/internal/helper"
+	"post-backend/internal/notification"
+	"post-backend/internal/setting"
+	"strconv"
 	"time"
 )
 
@@ -51,5 +54,31 @@ func deleteImage(folder string, imageName string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func CheckProductStock(settingRepository setting.SettingRepository, notificationRepository notification.NotificationRepository, ctx context.Context, tx *sql.Tx, product Product) error {
+	minimumStockAlert, err := settingRepository.FindBy(ctx, tx, "minimum_stock_alert")
+	if err != nil {
+		return err
+	}
+
+	minimumStockAlertInt, err := strconv.Atoi(minimumStockAlert.Value)
+	if err != nil {
+		return err
+	}
+
+	if product.Stock < minimumStockAlertInt {
+		notification := notification.Notification{
+			Title:   "Stock Alert",
+			Type:    "stock",
+			Message: fmt.Sprintf("The stock for %s is %d, which is below the minimum stock level of %d. Please restock soon.", product.Name, product.Stock, minimumStockAlertInt),
+		}
+		_, err = notificationRepository.Insert(ctx, tx, notification)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

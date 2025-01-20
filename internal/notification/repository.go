@@ -53,8 +53,8 @@ func (s *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([
 }
 
 func (s *NotificationRepositoryImpl) Insert(ctx context.Context, tx *sql.Tx, notification Notification) (Notification, error) {
-	sql := "INSERT INTO notifications(title, type, message, status) VALUES (?,?,?,?)"
-	result, err := tx.ExecContext(ctx, sql, notification.Title, notification.Type, notification.Message, notification.Status)
+	sql := "INSERT INTO notifications(title, message, status) VALUES (?,?,?,?)"
+	result, err := tx.ExecContext(ctx, sql, notification.Title, notification.Message, notification.Status)
 	if err != nil {
 		return Notification{}, err
 	}
