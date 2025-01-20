@@ -414,6 +414,7 @@ func (p *ProductServiceImpl) UpdateStock(ctx context.Context, inputProductId Get
 	if err != nil {
 		return err
 	}
+	product.Stock = newStock
 
 	stockHistory := stockhistory.StockHistory{
 		ProductId:   inputProductId.Id,

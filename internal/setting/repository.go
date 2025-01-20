@@ -25,6 +25,7 @@ func (s *SettingRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]Sett
 	if err != nil {
 		return []Setting{}, err
 	}
+	defer rows.Close()
 
 	var settings []Setting
 	for rows.Next() {
@@ -56,6 +57,7 @@ func (s *SettingRepositoryImpl) FindBy(ctx context.Context, tx *sql.Tx, by any) 
 	if err != nil {
 		return Setting{}, err
 	}
+	defer row.Close()
 
 	var setting Setting
 	if row.Next() {

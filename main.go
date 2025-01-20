@@ -88,6 +88,8 @@ func main() {
 	stockHistoryHandler := stockhistory.NewStockHistoryHandler(stockHistoryService)
 
 	notificationRepository := notification.NewNotificationRepository()
+	notificationService := notification.NewNotificationService(notificationRepository, db)
+	notificationHandler := notification.NewNotificationHandler(notificationService)
 
 	productRepository := product.NewProductRepository()
 	productService := product.NewProductService(db, productRepository, stockHistoryRepository, notificationRepository, settingRepository)
@@ -122,6 +124,11 @@ func main() {
 	// stock product history
 	api.GET("/stock-history/products/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetAllByProduct)
 	api.GET("/stock-history/:id", middleware.AuthMiddleware(tokenService), stockHistoryHandler.GetById)
+
+	// notification
+	api.GET("/notifications", middleware.AuthMiddleware(tokenService), notificationHandler.GetAll)
+	api.GET("/notifications/:id", middleware.AuthMiddleware(tokenService), notificationHandler.GetById)
+	api.PUT("/notifications/:id", middleware.AuthMiddleware(tokenService), notificationHandler.UpdateStatus)
 
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
