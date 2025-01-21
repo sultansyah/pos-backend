@@ -2,7 +2,6 @@ package payment
 
 import (
 	"context"
-	"post-backend/internal/transaction"
 	"post-backend/internal/user"
 	"strconv"
 
@@ -11,7 +10,7 @@ import (
 )
 
 type PaymentService interface {
-	GetPaymentUrl(ctx context.Context, payment Payment, user user.User, transaction transaction.Transaction) (string, error)
+	GetPaymentUrl(ctx context.Context, payment Payment, user user.User) (string, error)
 }
 
 type PaymentServiceImpl struct {
@@ -21,7 +20,7 @@ func NewPaymentService() PaymentService {
 	return &PaymentServiceImpl{}
 }
 
-func (p *PaymentServiceImpl) GetPaymentUrl(ctx context.Context, payment Payment, user user.User, transaction transaction.Transaction) (string, error) {
+func (p *PaymentServiceImpl) GetPaymentUrl(ctx context.Context, payment Payment, user user.User) (string, error) {
 	midtrans.ServerKey = ""
 	midtrans.Environment = midtrans.Sandbox
 
@@ -31,8 +30,8 @@ func (p *PaymentServiceImpl) GetPaymentUrl(ctx context.Context, payment Payment,
 			FName: user.Name,
 		},
 		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:  strconv.Itoa(transaction.Id),
-			GrossAmt: int64(transaction.Total),
+			OrderID:  strconv.Itoa(payment.Id),
+			GrossAmt: int64(payment.Amount),
 		},
 	}
 

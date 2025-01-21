@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"post-backend/internal/custom"
 	"post-backend/internal/helper"
+	"post-backend/internal/payment"
 	transactiondetail "post-backend/internal/transaction_detail"
 )
 
@@ -20,13 +21,15 @@ type TransactionServiceImpl struct {
 	DB                          *sql.DB
 	TransactionRepository       TransactionRepository
 	TransactionDetailRepository transactiondetail.TransactionDetailRepository
+	PaymentService              payment.PaymentService
 }
 
-func NewTransactionService(transactionRepository TransactionRepository, transactionDetailRepository transactiondetail.TransactionDetailRepository, DB *sql.DB) TransactionService {
+func NewTransactionService(DB *sql.DB, transactionRepository TransactionRepository, transactionDetailRepository transactiondetail.TransactionDetailRepository, paymentService payment.PaymentService) TransactionService {
 	return &TransactionServiceImpl{
 		DB:                          DB,
 		TransactionRepository:       transactionRepository,
 		TransactionDetailRepository: transactionDetailRepository,
+		PaymentService:              paymentService,
 	}
 }
 
